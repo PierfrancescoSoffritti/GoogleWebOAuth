@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
 /**
  * An AsyncTask that exchanges the authorization code for the access token and the refresh token
  */
-public class GetTokensTask extends AsyncTask<String, String, JSONObject> {
+class GetTokensTask extends AsyncTask<String, String, JSONObject> {
     private WeakReference<Context> context;
 
     private ProgressDialog progressDialog;
@@ -63,7 +63,7 @@ public class GetTokensTask extends AsyncTask<String, String, JSONObject> {
                 String expireIn = json.getString("expires_in");
                 String refreshToken = json.getString("refresh_token");
 
-                authenticatedUser.authenticate(accessToken, refreshToken, expireIn);
+                authenticatedUser.authenticate(accessToken, refreshToken, Integer.parseInt(expireIn));
 
             } catch (JSONException e) {
                 e.printStackTrace();

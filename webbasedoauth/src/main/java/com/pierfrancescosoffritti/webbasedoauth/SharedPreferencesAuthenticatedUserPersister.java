@@ -27,7 +27,7 @@ public class SharedPreferencesAuthenticatedUserPersister implements Authenticate
         sharedPreferences.edit()
                 .putString(ACCESS_TOKEN_KEY, authenticatedUser.getAccessToken())
                 .putString(REFRESH_TOKEN_KEY, authenticatedUser.getRefreshToken())
-                .putString(EXPIRES_IN_TOKEN_KEY, authenticatedUser.getExpiresIn())
+                .putInt(EXPIRES_IN_TOKEN_KEY, authenticatedUser.getExpiresIn())
                 .putString(TOKEN_ACQUIRE_TIME_KEY, authenticatedUser.getTokenAcquisitionTime().getTime()+"")
                 .putInt(AUTH_STATUS_KEY, authenticatedUser.getAuthStatus())
                 .apply();
@@ -37,7 +37,7 @@ public class SharedPreferencesAuthenticatedUserPersister implements Authenticate
     public void loadUser(AuthenticatedUser authenticatedUser) {
         String accessToken = sharedPreferences.getString(ACCESS_TOKEN_KEY, null);
         String refreshToken = sharedPreferences.getString(REFRESH_TOKEN_KEY, null);
-        String expiresIn = sharedPreferences.getString(EXPIRES_IN_TOKEN_KEY, null);
+        int expiresIn = sharedPreferences.getInt(EXPIRES_IN_TOKEN_KEY, -1);
         Date tokenAcquireTime = new Date(Long.parseLong(sharedPreferences.getString(TOKEN_ACQUIRE_TIME_KEY, "0")));
         @AuthenticatedUser.AuthStatus int authStatus = sharedPreferences.getInt(AUTH_STATUS_KEY, AuthenticatedUser.NOT_AUTHENTICATED);
 

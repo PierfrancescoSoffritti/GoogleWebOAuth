@@ -1,6 +1,7 @@
 package com.pierfrancescosoffritti.webbasedoauth;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -23,7 +24,7 @@ class AuthenticatedUser {
 
     private String accessToken;
     private String refreshToken;
-    private String expiresIn;
+    private int expiresIn;
     private Date tokenAcquisitionTime;
 
     private AuthenticatedUserPersister persister;
@@ -34,7 +35,10 @@ class AuthenticatedUser {
         this.persister.loadUser(this);
     }
 
-    public void init(String accessToken, String refreshToken, String expiresIn, Date tokenAcquireTime, @AuthStatus int authStatus) {
+    public void init(String accessToken, String refreshToken, int expiresIn, Date tokenAcquireTime, @AuthStatus int authStatus) {
+        if((accessToken == null || refreshToken == null || tokenAcquireTime == null) && authStatus != NOT_AUTHENTICATED)
+            throw new IllegalArgumentException("(accessToken == null || refreshToken == null || tokenAcquireTime == null) && authStatus != NOT_AUTHENTICATED");
+
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
@@ -50,7 +54,7 @@ class AuthenticatedUser {
         return refreshToken;
     }
 
-    public String getExpiresIn() {
+    public int getExpiresIn() {
         return expiresIn;
     }
 
@@ -58,6 +62,10 @@ class AuthenticatedUser {
         return tokenAcquisitionTime;
     }
 
+    /**
+     * Other than returning the auth status, this method is responsible for changing the status to expired if expiresIn - 600 seconds are passed
+     * @return the status of the authentication. A value from {@link AuthStatus}
+     */
     @AuthStatus int getAuthStatus() {
         if(authStatus == NOT_AUTHENTICATED)
             return authStatus;
@@ -65,37 +73,42 @@ class AuthenticatedUser {
         // the access token is refreshed offset seconds before expiring
         long currentTime = new Date().getTime() / 1000;
         long tokenAcquiredTime = tokenAcquisitionTime.getTime() / 1000;
-        int expireTime = Integer.parseInt(expiresIn);
         int offset = 600; // 10 minutes
 
-        if(currentTime - tokenAcquiredTime >= expireTime - offset) {
+        if(currentTime - tokenAcquiredTime >= expiresIn - offset) {
             authStatus = TOKEN_EXPIRED;
 
             accessToken = null;
-            expiresIn = null;
+            expiresIn = -1;
             tokenAcquisitionTime = null;
         }
 
         return authStatus;
     }
 
-    void authenticate(String accessToken, String refreshToken, String expiresIn, Date tokenAcquireTime) {
+    void authenticate(@NonNull String accessToken, @NonNull String refreshToken, int expiresIn, @NonNull Date tokenAcquisitionTime) {
+        if(accessToken.isEmpty() || refreshToken.isEmpty())
+            throw new IllegalArgumentException("accessToken.isEmpty() || refreshToken.isEmpty()");
+
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
 
-        this.tokenAcquisitionTime = tokenAcquireTime;
+        this.tokenAcquisitionTime = tokenAcquisitionTime;
 
         authStatus = AUTHENTICATED;
 
         persister.persistUser(this);
     }
 
-    void authenticate(String accessToken, String refreshToken, String expiresIn) {
+    void authenticate(String accessToken, String refreshToken, int expiresIn) {
         authenticate(accessToken, refreshToken, expiresIn, new Date());
     }
 
-    void setNewAccessToken(String accessToken, String expiresIn) {
+    void setNewAccessToken(@NonNull String accessToken, int expiresIn) {
+        if(accessToken.isEmpty())
+            throw new IllegalArgumentException("accessToken.isEmpty()");
+
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
 
@@ -109,7 +122,8 @@ class AuthenticatedUser {
     void remove() {
         this.accessToken = null;
         this.refreshToken = null;
-        this.expiresIn = null;
+        this.expiresIn = -1;
+        this.tokenAcquisitionTime = null;
 
         this.authStatus = NOT_AUTHENTICATED;
 

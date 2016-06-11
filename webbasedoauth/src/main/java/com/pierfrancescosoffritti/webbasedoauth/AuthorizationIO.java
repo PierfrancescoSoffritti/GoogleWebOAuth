@@ -25,12 +25,12 @@ import java.util.List;
  * @author Pierfrancesco Soffritti.
  */
 
-public class AuthorizationIO {
+class AuthorizationIO {
 
     /**
      * Exchanges an authorization code for an access token and a refresh token
      */
-    public static JSONObject exchangeAuthorizationCode(@NonNull String tokenURL, @NonNull String authorizationCode, @NonNull String clientID,
+    static JSONObject exchangeAuthorizationCode(@NonNull String tokenURL, @NonNull String authorizationCode, @NonNull String clientID,
                                                        @Nullable String clientSecret, @NonNull String redirectURI, @NonNull String grantType) throws IOException, JSONException {
 
         HttpURLConnection conn = null;
@@ -56,7 +56,7 @@ public class AuthorizationIO {
     /**
      * Ask the server for a new access token, using a refresh token
      */
-    public static JSONObject refreshAccessToken(@NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret,
+    static JSONObject refreshAccessToken(@NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret,
                                                 @NonNull String refreshToken, @NonNull String grantType) throws RuntimeException {
 
         HttpURLConnection conn = null;

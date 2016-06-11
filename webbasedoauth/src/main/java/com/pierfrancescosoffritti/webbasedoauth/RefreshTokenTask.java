@@ -8,7 +8,7 @@ import org.json.JSONObject;
 /**
  * An AsyncTask that uses the refresh token to get a valid access token
  */
-public class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
+class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
     private AuthenticatedUser authenticatedUser;
     private Authenticator authenticator;
 
@@ -36,7 +36,7 @@ public class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
                 String accessToken = json.getString("access_token");
                 String expireIn = json.getString("expires_in");
 
-                authenticatedUser.setNewAccessToken(accessToken, expireIn);
+                authenticatedUser.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
 
             } catch (JSONException e) {
                 e.printStackTrace();
