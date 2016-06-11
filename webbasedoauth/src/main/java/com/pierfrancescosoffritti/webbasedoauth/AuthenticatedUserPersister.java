@@ -1,7 +1,7 @@
 package com.pierfrancescosoffritti.webbasedoauth;
 
 /**
- * Created by  Pierfrancesco on 11/06/2016.
+ * Every class that want to implement the persistence of the tokens must implement this interface.
  */
 public interface AuthenticatedUserPersister {
     void persistUser(AuthenticatedUser authenticatedUser);

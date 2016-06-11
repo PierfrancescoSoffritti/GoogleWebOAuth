@@ -7,12 +7,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Date;
 
 /**
- * Created by  Pierfrancesco on 10/06/2016.
+ * This class contains the access token, the refresh token and some utilities to know if the access token has expired.
+ * This class uses an {@link AuthenticatedUserPersister} to persist the user data.
  */
-public class AuthenticatedUser {
-    protected final static int NOT_AUTHENTICATED = 0;
-    protected final static int TOKEN_EXPIRED = 1;
-    protected final static int AUTHENTICATED = 2;
+class AuthenticatedUser {
+    final static int NOT_AUTHENTICATED = 0;
+    final static int TOKEN_EXPIRED = 1;
+    final static int AUTHENTICATED = 2;
 
     @IntDef({NOT_AUTHENTICATED, TOKEN_EXPIRED, AUTHENTICATED})
     @Retention(RetentionPolicy.SOURCE)
@@ -23,11 +24,11 @@ public class AuthenticatedUser {
     private String accessToken;
     private String refreshToken;
     private String expiresIn;
-    private Date tokenAcquireTime;
+    private Date tokenAcquisitionTime;
 
     private AuthenticatedUserPersister persister;
 
-    protected AuthenticatedUser(AuthenticatedUserPersister persister) {
+    AuthenticatedUser(AuthenticatedUserPersister persister) {
         this.persister = persister;
 
         this.persister.loadUser(this);
@@ -37,7 +38,7 @@ public class AuthenticatedUser {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
-        this.tokenAcquireTime = tokenAcquireTime;
+        this.tokenAcquisitionTime = tokenAcquireTime;
         this.authStatus = authStatus;
     }
 
@@ -53,16 +54,17 @@ public class AuthenticatedUser {
         return expiresIn;
     }
 
-    public Date getTokenAcquireTime() {
-        return tokenAcquireTime;
+    public Date getTokenAcquisitionTime() {
+        return tokenAcquisitionTime;
     }
 
-    protected  @AuthStatus int getAuthStatus() {
+    @AuthStatus int getAuthStatus() {
         if(authStatus == NOT_AUTHENTICATED)
             return authStatus;
 
+        // the access token is refreshed offset seconds before expiring
         long currentTime = new Date().getTime() / 1000;
-        long tokenAcquiredTime = tokenAcquireTime.getTime() / 1000;
+        long tokenAcquiredTime = tokenAcquisitionTime.getTime() / 1000;
         int expireTime = Integer.parseInt(expiresIn);
         int offset = 600; // 10 minutes
 
@@ -71,40 +73,40 @@ public class AuthenticatedUser {
 
             accessToken = null;
             expiresIn = null;
-            tokenAcquireTime = null;
+            tokenAcquisitionTime = null;
         }
 
         return authStatus;
     }
 
-    protected void authenticate(String accessToken, String refreshToken, String expiresIn, Date tokenAcquireTime) {
+    void authenticate(String accessToken, String refreshToken, String expiresIn, Date tokenAcquireTime) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
 
-        this.tokenAcquireTime = tokenAcquireTime;
+        this.tokenAcquisitionTime = tokenAcquireTime;
 
         authStatus = AUTHENTICATED;
 
         persister.persistUser(this);
     }
 
-    protected void authenticate(String accessToken, String refreshToken, String expiresIn) {
+    void authenticate(String accessToken, String refreshToken, String expiresIn) {
         authenticate(accessToken, refreshToken, expiresIn, new Date());
     }
 
-    protected void refreshAccessToken(String accessToken, String expiresIn) {
+    void setNewAccessToken(String accessToken, String expiresIn) {
         this.accessToken = accessToken;
         this.expiresIn = expiresIn;
 
-        this.tokenAcquireTime = new Date();
+        this.tokenAcquisitionTime = new Date();
 
         authStatus = AUTHENTICATED;
 
         persister.persistUser(this);
     }
 
-    protected void remove() {
+    void remove() {
         this.accessToken = null;
         this.refreshToken = null;
         this.expiresIn = null;

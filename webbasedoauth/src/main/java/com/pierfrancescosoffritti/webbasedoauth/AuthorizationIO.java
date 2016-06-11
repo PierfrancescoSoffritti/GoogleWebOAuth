@@ -21,26 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Exchanges the authorization code for an Access Token and a Refresh Token
+ * Class containing static methods for IO.
  * @author Pierfrancesco Soffritti.
  */
 
 public class AuthorizationIO {
+
+    /**
+     * Exchanges an authorization code for an access token and a refresh token
+     */
     public static JSONObject exchangeAuthorizationCode(@NonNull String tokenURL, @NonNull String authorizationCode, @NonNull String clientID,
                                                        @Nullable String clientSecret, @NonNull String redirectURI, @NonNull String grantType) throws IOException, JSONException {
-        URL url = new URL(tokenURL);
 
         HttpURLConnection conn = null;
         try {
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
+            conn = initConnection(new URL(tokenURL));
 
             List<Pair<String, String>> params = new ArrayList<>();
             params.add(new Pair<>("code", authorizationCode));
@@ -50,43 +45,23 @@ public class AuthorizationIO {
             params.add(new Pair<>("redirect_uri", redirectURI));
             params.add(new Pair<>("grant_type", grantType));
 
-            OutputStream outputStream = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-            writer.write(writeBody(params));
-            writer.flush();
-            writer.close();
-            outputStream.close();
+            return httpPost(conn, params);
 
-            conn.connect();
-
-            // retrieve response
-            InputStream inputStream = conn.getInputStream();
-            int ch;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((ch = inputStream.read()) != -1)
-                stringBuilder.append((char) ch);
-
-            return new JSONObject(stringBuilder.toString());
         } finally {
             if (conn != null)
                 conn.disconnect();
         }
     }
 
-    public static JSONObject refreshAccessToken(String tokenURL, String clientID, String clientSecret, String refreshToken, String grantType) throws RuntimeException {
+    /**
+     * Ask the server for a new access token, using a refresh token
+     */
+    public static JSONObject refreshAccessToken(@NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret,
+                                                @NonNull String refreshToken, @NonNull String grantType) throws RuntimeException {
 
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(tokenURL);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
+            conn = initConnection(new URL(tokenURL));
 
             List<Pair<String, String>> params = new ArrayList<>();
             params.add(new Pair<>("client_id", clientID));
@@ -95,23 +70,8 @@ public class AuthorizationIO {
             params.add(new Pair<>("refresh_token", refreshToken));
             params.add(new Pair<>("grant_type", grantType));
 
-            OutputStream outputStream = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-            writer.write(writeBody(params));
-            writer.flush();
-            writer.close();
-            outputStream.close();
-
-            conn.connect();
-
             try {
-                InputStream inputStream = conn.getInputStream();
-                int ch;
-                StringBuilder stringBuilder = new StringBuilder();
-                while ((ch = inputStream.read()) != -1)
-                    stringBuilder.append((char) ch);
-
-                return new JSONObject(stringBuilder.toString());
+                return httpPost(conn, params);
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("Can't refresh token, probably the user has revoked the authorization");
             }
@@ -123,6 +83,39 @@ public class AuthorizationIO {
             if (conn != null)
                 conn.disconnect();
         }
+    }
+
+    private static HttpURLConnection initConnection(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(10000);
+
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+
+        return conn;
+    }
+
+    private static JSONObject httpPost(HttpURLConnection conn, List<Pair<String, String>> params) throws IOException, JSONException {
+        OutputStream outputStream = conn.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+        writer.write(writeBody(params));
+        writer.flush();
+        writer.close();
+        outputStream.close();
+
+        conn.connect();
+
+        InputStream inputStream = conn.getInputStream();
+        int ch;
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((ch = inputStream.read()) != -1)
+            stringBuilder.append((char) ch);
+
+        return new JSONObject(stringBuilder.toString());
     }
 
     private static String writeBody(List<Pair<String, String>> params) throws UnsupportedEncodingException {

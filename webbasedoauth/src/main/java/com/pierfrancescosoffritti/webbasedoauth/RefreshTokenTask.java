@@ -36,7 +36,7 @@ public class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
                 String accessToken = json.getString("access_token");
                 String expireIn = json.getString("expires_in");
 
-                authenticatedUser.refreshAccessToken(accessToken, expireIn);
+                authenticatedUser.setNewAccessToken(accessToken, expireIn);
 
             } catch (JSONException e) {
                 e.printStackTrace();
