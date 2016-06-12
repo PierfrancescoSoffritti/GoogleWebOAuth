@@ -10,6 +10,8 @@ This library implements the web-based OAuth process in a simple way, in order to
 
 If you don't need to access any secondary account (some Google services can't even use them) you should use the libraries provided by Google.
 
+<img  src="https://github.com/PierfrancescoSoffritti/WebBasedOAuth/blob/master/screenshots/sample.png" />
+
 ## Download
 Add this to you project-level `build.gradle`:
 ```
