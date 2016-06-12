@@ -16,6 +16,7 @@ import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.pierfrancescosoffritti.webbasedoauth.Authenticator;
+import com.pierfrancescosoffritti.webbasedoauth.SharedPreferencesCredentialPersister;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        authenticator = new Authenticator(this, OAUTH_URL, scopes, REDIRECT_URI, RESPONSE_TYPE, CLIENT_ID, ACCESS_TYPE, TOKEN_URL, CLIENT_SECRET);
+        authenticator = new Authenticator(this, new SharedPreferencesCredentialPersister(this),
+                OAUTH_URL, scopes, REDIRECT_URI, RESPONSE_TYPE, CLIENT_ID, ACCESS_TYPE, TOKEN_URL, CLIENT_SECRET);
     }
 
     @OnClick(R.id.fetch_youtube_channel_title_button)
@@ -89,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
                     request.setKey("AIzaSyA4hdKzU9AkD1o0ftGv3SvPfN4M99ur3Qg");
 
                     Person person = request.execute();
-                    String name = person.getName().getFamilyName() +" " +person.getDisplayName();
-                    Log.d(MainActivity.class.getSimpleName(), "Email: " +name);
+                    String name = person.getDisplayName();
+                    Log.d(MainActivity.class.getSimpleName(), "Name: " +name);
                     gPlusPageName.post(() -> gPlusPageName.setText(person.getDisplayName()));
 
                 } catch (Exception e) {

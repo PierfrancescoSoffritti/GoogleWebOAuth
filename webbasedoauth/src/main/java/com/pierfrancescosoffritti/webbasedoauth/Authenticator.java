@@ -29,6 +29,9 @@ import java.util.concurrent.Semaphore;
  * <br/><br/>
  * Use the {@link #handleException(Exception)} method each time you make an API call using the access token.
  * Is necessary to handle the case in which the users revokes the access while an access token is still valid.
+ *
+ * <br/><br/>
+ * Look at this page for more info about Google OAuth authentication <a href>https://developers.google.com/identity/protocols/OAuth2InstalledApp</a>
  */
 public class Authenticator  {
 
@@ -48,7 +51,19 @@ public class Authenticator  {
 
     private final Semaphore available = new Semaphore(0, true);
 
-    public Authenticator(@NonNull Activity context,
+    /**
+     * @param context base activity.
+     * @param persister responsible for storing the auth credentials.
+     * @param OAuthURL url to get the authorization code. Use <a href="https://accounts.google.com/o/oauth2/auth">https://accounts.google.com/o/oauth2/auth</a> for Google.
+     * @param scopes request scopes.
+     * @param redirectURL determines how the response is sent to your app. <a href>http://localhost</a> should be good in most cases
+     * @param responseType for installed applications, use the value "code", indicating that the Google OAuth 2.0 endpoint should return an authorization code.
+     * @param clientID identifies the client that is making the request. The value passed in this parameter must exactly match the value shown in the <a href="https://console.developers.google.com/">Google Developers Console</a>.
+     * @param accessType use the value "offline"
+     * @param tokenURL  url used to exchange the authorization code for access and refresh token. Also used to refresh the access token. Use <a href="https://accounts.google.com/o/oauth2/token">https://accounts.google.com/o/oauth2/token</a> for Google.
+     * @param clientSecret the client secret you obtained from the Developers Console (optional for clients registered as Android, iOS or Chrome applications).
+     */
+    public Authenticator(@NonNull Activity context, @NonNull CredentialPersister persister,
                          @NonNull String OAuthURL, @NonNull String[] scopes, @NonNull String redirectURL, @NonNull String responseType, @NonNull String clientID, @NonNull String accessType,
                          @NonNull String tokenURL, @Nullable String clientSecret) {
         this.context = context;
@@ -63,7 +78,7 @@ public class Authenticator  {
         this.tokenURL = tokenURL;
         this.clientSecret = clientSecret;
 
-        this.credentialStore = new CredentialStore(new SharedPreferencesCredentialPersister(context));
+        this.credentialStore = new CredentialStore(persister);
     }
 
     private String buildScopesString(String[] scopes) {

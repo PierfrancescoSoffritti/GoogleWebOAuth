@@ -11,7 +11,7 @@ import java.util.Date;
  * This class contains the access token, the refresh token and some utilities to know if the access token has expired.
  * This class uses an {@link CredentialPersister} to persist the user data.
  */
-class CredentialStore {
+public class CredentialStore {
     final static int NOT_AUTHENTICATED = 0;
     final static int TOKEN_EXPIRED = 1;
     final static int AUTHENTICATED = 2;
