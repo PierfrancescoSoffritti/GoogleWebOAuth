@@ -18,12 +18,12 @@ class GetTokensTask extends AsyncTask<String, String, JSONObject> {
 
     private ProgressDialog progressDialog;
 
-    private AuthenticatedUser authenticatedUser;
+    private CredentialStore credentialStore;
     private Authenticator authenticator;
 
-    public GetTokensTask(Context context, Authenticator authenticator , AuthenticatedUser authenticatedUser) {
+    public GetTokensTask(Context context, Authenticator authenticator , CredentialStore credentialStore) {
         this.context = new WeakReference<>(context);
-        this.authenticatedUser = authenticatedUser;
+        this.credentialStore = credentialStore;
 
         this.authenticator = authenticator;
     }
@@ -63,7 +63,7 @@ class GetTokensTask extends AsyncTask<String, String, JSONObject> {
                 String expireIn = json.getString("expires_in");
                 String refreshToken = json.getString("refresh_token");
 
-                authenticatedUser.authenticate(accessToken, refreshToken, Integer.parseInt(expireIn));
+                credentialStore.authenticate(accessToken, refreshToken, Integer.parseInt(expireIn));
 
             } catch (JSONException e) {
                 e.printStackTrace();

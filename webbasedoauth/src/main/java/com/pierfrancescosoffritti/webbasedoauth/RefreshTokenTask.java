@@ -9,11 +9,11 @@ import org.json.JSONObject;
  * An AsyncTask that uses the refresh token to get a valid access token
  */
 class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
-    private AuthenticatedUser authenticatedUser;
+    private CredentialStore credentialStore;
     private Authenticator authenticator;
 
-    public RefreshTokenTask(Authenticator authenticator, AuthenticatedUser authenticatedUser) {
-        this.authenticatedUser = authenticatedUser;
+    public RefreshTokenTask(Authenticator authenticator, CredentialStore credentialStore) {
+        this.credentialStore = credentialStore;
         this.authenticator = authenticator;
     }
 
@@ -21,10 +21,10 @@ class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
     protected JSONObject doInBackground(String... args) {
         JSONObject json = null;
         try {
-            json = AuthorizationIO.refreshAccessToken(args[0], args[1], args[2], authenticatedUser.getRefreshToken(), args[3]);
+            json = AuthorizationIO.refreshAccessToken(args[0], args[1], args[2], credentialStore.getRefreshToken(), args[3]);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            authenticatedUser.remove();
+            credentialStore.clear();
         }
         return json;
     }
@@ -36,7 +36,7 @@ class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
                 String accessToken = json.getString("access_token");
                 String expireIn = json.getString("expires_in");
 
-                authenticatedUser.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
+                credentialStore.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
 
             } catch (JSONException e) {
                 e.printStackTrace();

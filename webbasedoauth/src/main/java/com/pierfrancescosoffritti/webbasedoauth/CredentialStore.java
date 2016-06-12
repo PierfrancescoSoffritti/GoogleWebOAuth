@@ -9,9 +9,9 @@ import java.util.Date;
 
 /**
  * This class contains the access token, the refresh token and some utilities to know if the access token has expired.
- * This class uses an {@link AuthenticatedUserPersister} to persist the user data.
+ * This class uses an {@link CredentialPersister} to persist the user data.
  */
-class AuthenticatedUser {
+class CredentialStore {
     final static int NOT_AUTHENTICATED = 0;
     final static int TOKEN_EXPIRED = 1;
     final static int AUTHENTICATED = 2;
@@ -27,22 +27,35 @@ class AuthenticatedUser {
     private int expiresIn;
     private Date tokenAcquisitionTime;
 
-    private AuthenticatedUserPersister persister;
+    private CredentialPersister persister;
 
-    AuthenticatedUser(AuthenticatedUserPersister persister) {
+    CredentialStore(CredentialPersister persister) {
         this.persister = persister;
 
         this.persister.loadUser(this);
     }
 
-    public void init(String accessToken, String refreshToken, int expiresIn, Date tokenAcquireTime, @AuthStatus int authStatus) {
-        if((accessToken == null || refreshToken == null || tokenAcquireTime == null) && authStatus != NOT_AUTHENTICATED)
+    /**
+     * Use this method to initialize the state of this {@link CredentialStore}.
+     * <br/><br/>
+     * eg. Useful in {@link CredentialPersister#loadUser(CredentialStore)}
+     *
+     * @param accessToken the access token
+     * @param refreshToken the refresh token
+     * @param expiresIn duration of the access token
+     * @param tokenAcquisitionTime date object representing the time of acquisition of the access token
+     * @param authStatus the status of the authentication
+     *
+     * @throws IllegalArgumentException if accessToken == null || refreshToken == null || tokenAcquisitionTime == null and authStatus != NOT_AUTHENTICATED
+     */
+    public void init(String accessToken, String refreshToken, int expiresIn, Date tokenAcquisitionTime, @AuthStatus int authStatus) {
+        if((accessToken == null || refreshToken == null || tokenAcquisitionTime == null) && authStatus != NOT_AUTHENTICATED)
             throw new IllegalArgumentException("(accessToken == null || refreshToken == null || tokenAcquireTime == null) && authStatus != NOT_AUTHENTICATED");
 
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.expiresIn = expiresIn;
-        this.tokenAcquisitionTime = tokenAcquireTime;
+        this.tokenAcquisitionTime = tokenAcquisitionTime;
         this.authStatus = authStatus;
     }
 
@@ -54,10 +67,16 @@ class AuthenticatedUser {
         return refreshToken;
     }
 
+    /**
+     * @return the expiration time of the current access token, in seconds.
+     */
     public int getExpiresIn() {
         return expiresIn;
     }
 
+    /**
+     * @return the time of acquisition of the current access token
+     */
     public Date getTokenAcquisitionTime() {
         return tokenAcquisitionTime;
     }
@@ -86,6 +105,9 @@ class AuthenticatedUser {
         return authStatus;
     }
 
+    /**
+     * Use this method to store new credentials.
+     */
     void authenticate(@NonNull String accessToken, @NonNull String refreshToken, int expiresIn, @NonNull Date tokenAcquisitionTime) {
         if(accessToken.isEmpty() || refreshToken.isEmpty())
             throw new IllegalArgumentException("accessToken.isEmpty() || refreshToken.isEmpty()");
@@ -101,10 +123,16 @@ class AuthenticatedUser {
         persister.persistUser(this);
     }
 
+    /**
+     * Use this method to store new credentials.
+     */
     void authenticate(String accessToken, String refreshToken, int expiresIn) {
         authenticate(accessToken, refreshToken, expiresIn, new Date());
     }
 
+    /**
+     * Use this method to set a new access token.
+     */
     void setNewAccessToken(@NonNull String accessToken, int expiresIn) {
         if(accessToken.isEmpty())
             throw new IllegalArgumentException("accessToken.isEmpty()");
@@ -119,7 +147,10 @@ class AuthenticatedUser {
         persister.persistUser(this);
     }
 
-    void remove() {
+    /**
+     * Use this method to delete all the stored credentials.
+     */
+    void clear() {
         this.accessToken = null;
         this.refreshToken = null;
         this.expiresIn = -1;

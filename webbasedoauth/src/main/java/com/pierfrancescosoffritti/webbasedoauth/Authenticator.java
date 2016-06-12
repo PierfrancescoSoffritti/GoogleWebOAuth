@@ -43,7 +43,7 @@ public class Authenticator  {
     private String tokenURL;
     private String clientSecret;
 
-    private AuthenticatedUser authenticatedUser;
+    private CredentialStore credentialStore;
 
     private final Semaphore available = new Semaphore(0, true);
 
@@ -62,7 +62,7 @@ public class Authenticator  {
         this.tokenURL = tokenURL;
         this.clientSecret = clientSecret;
 
-        this.authenticatedUser = new AuthenticatedUser(new SharedPreferencesAuthenticatedUserPersister(context));
+        this.credentialStore = new CredentialStore(new SharedPreferencesCredentialPersister(context));
     }
 
     private String buildScopesString(String[] scopes) {
@@ -102,30 +102,30 @@ public class Authenticator  {
      */
     public synchronized @Nullable
     String getAccessToken() throws InterruptedException {
-        @AuthenticatedUser.AuthStatus int status = authenticatedUser.getAuthStatus();
+        @CredentialStore.AuthStatus int status = credentialStore.getAuthStatus();
         switch (status) {
-            case AuthenticatedUser.NOT_AUTHENTICATED:
+            case CredentialStore.NOT_AUTHENTICATED:
                 authenticate();
                 available.acquire();
                 break;
-            case AuthenticatedUser.TOKEN_EXPIRED:
+            case CredentialStore.TOKEN_EXPIRED:
                 refreshToken();
                 available.acquire();
                 break;
-            case AuthenticatedUser.AUTHENTICATED:
+            case CredentialStore.AUTHENTICATED:
                 break;
         }
 
-        return authenticatedUser.getAccessToken();
+        return credentialStore.getAccessToken();
     }
 
     /**
-     * Delete the current {@link AuthenticatedUser}.
+     * Delete the current {@link CredentialStore}.
      * <br/>
      * The user info is removed both from memory and from the persistent location.
      */
     public void logout() {
-        authenticatedUser.remove();
+        credentialStore.clear();
     }
 
     /* TODO must find a better solution to this problem. The only way to find out if the user has revoked access to the app (while the access token is valid) is by making an http request. But I can't make an http request every time getAccessToken is called.
@@ -139,7 +139,7 @@ public class Authenticator  {
     public void handleException(Exception e)  {
         if(e.getMessage().contains("401")) {
             Log.e(Authenticator.class.getSimpleName(), "401 Unauthorized, probably the user has revoked the authorization");
-            authenticatedUser.remove();
+            credentialStore.clear();
         }
     }
 
@@ -151,7 +151,7 @@ public class Authenticator  {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                showDialog(authenticatedUser);
+                showDialog(credentialStore);
             }
         });
     }
@@ -160,14 +160,14 @@ public class Authenticator  {
      * Start the refresh token process.
      */
     private void refreshToken() {
-        new RefreshTokenTask(this, authenticatedUser).execute(tokenURL, clientID, clientSecret, "refresh_token");
+        new RefreshTokenTask(this, credentialStore).execute(tokenURL, clientID, clientSecret, "refresh_token");
     }
 
     /**
      * Show a WebView in a dialog, for the web-based OAuth authentication.
      */
     @SuppressLint("SetJavaScriptEnabled")
-    private void showDialog(final AuthenticatedUser authenticatedUser) {
+    private void showDialog(final CredentialStore credentialStore) {
         final Dialog authDialog = new Dialog(context);
         authDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -212,7 +212,7 @@ public class Authenticator  {
 
                     String authorizationCode = Uri.parse(url).getQueryParameter("code");
 
-                    new GetTokensTask(context, Authenticator.this, authenticatedUser).execute(tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code");
+                    new GetTokensTask(context, Authenticator.this, credentialStore).execute(tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code");
 
                     authDialog.dismiss();
                 } else if(url.contains("error=access_denied"))
