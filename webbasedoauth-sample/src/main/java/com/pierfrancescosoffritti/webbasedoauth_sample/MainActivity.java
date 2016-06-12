@@ -8,6 +8,9 @@ import android.widget.TextView;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpHeaders;
+import com.google.api.services.plus.Plus;
+import com.google.api.services.plus.PlusScopes;
+import com.google.api.services.plus.model.Person;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.Channel;
@@ -29,11 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACCESS_TYPE = "offline";
     private static final String CLIENT_SECRET = null;
 
-    private static final String[] scopes = new String[] {YouTubeScopes.YOUTUBE, YouTubeScopes.YOUTUBE_UPLOAD};
+    private static final String[] scopes = new String[] {YouTubeScopes.YOUTUBE, YouTubeScopes.YOUTUBE_UPLOAD, PlusScopes.PLUS_LOGIN};
 
     private Authenticator authenticator;
 
-    @BindView(R.id.channel_title_text_view) TextView channelTitle;
+    @BindView(R.id.youtube_channel_title_text_view) TextView channelTitle;
+    @BindView(R.id.google_plus_page_name_text_view) TextView gPlusPageName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,26 +48,67 @@ public class MainActivity extends AppCompatActivity {
         authenticator = new Authenticator(this, OAUTH_URL, scopes, REDIRECT_URI, RESPONSE_TYPE, CLIENT_ID, ACCESS_TYPE, TOKEN_URL, CLIENT_SECRET);
     }
 
-    @OnClick(R.id.fetch_channel_title_button)
-    public void askForChannelTitle() {
-        askForChannelTitle(authenticator);
+    @OnClick(R.id.fetch_youtube_channel_title_button)
+    public void askForYouTubeChannelTitle() {
+        askForYouTubeChannelTitle(authenticator);
+    }
+
+    @OnClick(R.id.fetch_google_plus_page_name_button)
+    public void askForGPlusPageName() {
+        askGPlusPageName(authenticator);
     }
 
     @OnClick(R.id.logout_button)
     public void logout() {
         authenticator.logout();
         channelTitle.setText(" ");
+        gPlusPageName.setText(" ");
     }
 
-    private void askForChannelTitle(Authenticator authenticator) {
+    private void askGPlusPageName(Authenticator authenticator) {
         new Thread() {
             public void run() {
-
                 try {
 
                     String accessToken = authenticator.getAccessToken();
                     if(accessToken == null) {
-                        channelTitle.post(() -> channelTitle.setText(""));
+                        gPlusPageName.post(() -> gPlusPageName.setText("null"));
+                        return;
+                    }
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setAuthorization("Bearer " + accessToken);
+
+                    Plus plus = new Plus.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), request -> request.setHeaders(headers))
+                            .setApplicationName("AppName")
+                            .build();
+
+                    Plus.People.Get request = plus.people().get("me");
+                    request.setFields("name");
+
+                    request.setKey("AIzaSyA4hdKzU9AkD1o0ftGv3SvPfN4M99ur3Qg");
+
+                    Person person = request.execute();
+                    String name = person.getName().getFamilyName() +" " +person.getName().getGivenName();
+                    Log.d(MainActivity.class.getSimpleName(), "Email: " +name);
+                    gPlusPageName.post(() -> gPlusPageName.setText(name));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    authenticator.handleException(e);
+                }
+            }
+        }.start();
+    }
+
+    private void askForYouTubeChannelTitle(Authenticator authenticator) {
+        new Thread() {
+            public void run() {
+                try {
+
+                    String accessToken = authenticator.getAccessToken();
+                    if(accessToken == null) {
+                        channelTitle.post(() -> channelTitle.setText("null"));
                         return;
                     }
 

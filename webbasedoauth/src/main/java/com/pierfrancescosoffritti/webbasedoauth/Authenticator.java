@@ -110,6 +110,7 @@ public class Authenticator  {
         @CredentialStore.AuthStatus int status = credentialStore.getAuthStatus();
         switch (status) {
             case CredentialStore.NOT_AUTHENTICATED:
+                Log.d(Authenticator.class.getSimpleName(), "not auth");
                 authenticate();
                 available.acquire();
                 break;
@@ -234,6 +235,8 @@ public class Authenticator  {
      * this class is thread safe, blocked threads must be unlocked when {@link GetTokensTask} and {@link RefreshTokenTask} terminate.
      */
     protected void unlock() {
-        available.release();
+        Log.d(Authenticator.class.getSimpleName()," available permits before: " +available.availablePermits());
+        if(available.availablePermits() <= 0)
+            available.release();
     }
 }
