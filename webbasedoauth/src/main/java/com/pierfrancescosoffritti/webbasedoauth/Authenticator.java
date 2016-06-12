@@ -122,9 +122,7 @@ public class Authenticator  {
                 break;
         }
 
-        String accessToken = credentialStore.getAccessToken();
-        Log.d(Authenticator.class.getSimpleName(), "Access token: " +accessToken);
-        return accessToken;
+        return credentialStore.getAccessToken();
     }
 
     /**

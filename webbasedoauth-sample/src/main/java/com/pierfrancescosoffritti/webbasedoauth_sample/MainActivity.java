@@ -89,9 +89,9 @@ public class MainActivity extends AppCompatActivity {
                     request.setKey("AIzaSyA4hdKzU9AkD1o0ftGv3SvPfN4M99ur3Qg");
 
                     Person person = request.execute();
-                    String name = person.getDisplayName();
-                    Log.d(MainActivity.class.getSimpleName(), "name: " +name);
-                    gPlusPageName.post(() -> gPlusPageName.setText(name));
+                    String name = person.getName().getFamilyName() +" " +person.getDisplayName();
+                    Log.d(MainActivity.class.getSimpleName(), "Email: " +name);
+                    gPlusPageName.post(() -> gPlusPageName.setText(person.getDisplayName()));
 
                 } catch (Exception e) {
                     e.printStackTrace();
