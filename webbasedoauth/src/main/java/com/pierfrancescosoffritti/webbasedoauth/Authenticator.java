@@ -99,10 +99,14 @@ public class Authenticator  {
      * <li>a valid access token if case 3. or if 1. or 2. are executed and have terminated successfully</li>
      * <li>null if 1. or 2. are executed and have terminated unsuccessfully</li>
      *
+     * @throws RuntimeException if called from the main thread.
      * @throws InterruptedException see {@link Semaphore#acquire()}
      */
     public synchronized @Nullable
     String getAccessToken() throws InterruptedException {
+        if(Looper.myLooper() == Looper.getMainLooper())
+            throw new RuntimeException("don't call getAccessToken() from the main thread.");
+
         @CredentialStore.AuthStatus int status = credentialStore.getAuthStatus();
         switch (status) {
             case CredentialStore.NOT_AUTHENTICATED:
