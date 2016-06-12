@@ -52,3 +52,4 @@ Plus plus = new Plus.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJs
   .setApplicationName("AppName")
   .build();
 ```
+You can see the sample app for a working implementation with the Google+ API and the YouTube Data API.
