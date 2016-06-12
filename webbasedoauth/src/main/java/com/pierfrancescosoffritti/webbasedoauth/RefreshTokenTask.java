@@ -2,6 +2,7 @@ package com.pierfrancescosoffritti.webbasedoauth;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +36,8 @@ class RefreshTokenTask extends Thread {
 
             String accessToken = json.getString("access_token");
             String expireIn = json.getString("expires_in");
+
+            Log.d(RefreshTokenTask.class.getSimpleName(), "Access token: " +accessToken);
 
             credentialStore.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
         } catch (RuntimeException e) {

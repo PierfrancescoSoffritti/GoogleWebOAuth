@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +80,9 @@ class GetTokensTask extends Thread {
                     String accessToken = json.getString("access_token");
                     String expireIn = json.getString("expires_in");
                     String refreshToken = json.getString("refresh_token");
+
+                    Log.d(GetTokensTask.class.getSimpleName(), "Access token: " +accessToken);
+                    Log.d(GetTokensTask.class.getSimpleName(), "Refresh token: " +refreshToken);
 
                     credentialStore.authenticate(accessToken, refreshToken, Integer.parseInt(expireIn));
 
