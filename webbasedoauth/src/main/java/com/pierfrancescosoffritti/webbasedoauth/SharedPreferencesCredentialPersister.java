@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import java.util.Date;
 
 /**
- * Implmentation of {@link CredentialPersister} based on {@link SharedPreferences}
+ * Implementation of {@link CredentialPersister} based on {@link SharedPreferences}
  */
 public class SharedPreferencesCredentialPersister implements CredentialPersister {
     private static final String SHARED_PREFERENCES_NAME = "SHARED_PREFERENCES_AUTHENTICATED_USER_PERSISTER";

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
@@ -47,9 +48,9 @@ public class Authenticator  {
 
     private final Semaphore available = new Semaphore(0, true);
 
-    public Authenticator(Context context,
-                         String OAuthURL, String[] scopes, String redirectURL, String responseType, String clientID, String accessType,
-                         String tokenURL, String clientSecret) {
+    public Authenticator(@NonNull Context context,
+                         @NonNull String OAuthURL, @NonNull String[] scopes, @NonNull String redirectURL, @NonNull String responseType, @NonNull String clientID, @NonNull String accessType,
+                         @NonNull String tokenURL, @Nullable String clientSecret) {
         this.context = context;
 
         this.OAuthURL = OAuthURL;
