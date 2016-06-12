@@ -235,7 +235,6 @@ public class Authenticator  {
      * this class is thread safe, blocked threads must be unlocked when {@link GetTokensTask} and {@link RefreshTokenTask} terminate.
      */
     protected void unlock() {
-        Log.d(Authenticator.class.getSimpleName()," available permits before: " +available.availablePermits());
         if(available.availablePermits() <= 0)
             available.release();
     }
