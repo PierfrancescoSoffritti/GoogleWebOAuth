@@ -1,48 +1,49 @@
 package com.pierfrancescosoffritti.webbasedoauth;
 
-import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * An AsyncTask that uses the refresh token to get a valid access token
+ * A Thread that uses the refresh token to get a valid access token
+ * <br/><br/>
+ * This functionality isn't implemented with an AsyncTask because this task is called from {@link Authenticator#getAccessToken()}, that blocks the calling thread.
+ * <br/>
+ * If both this class and the thread calling {@link Authenticator#getAccessToken()} where to be AsyncTasks, the calling AsyncTask would be blocked, waiting for this task to terminate,
+ * but due to the sequentiality of AsyncTasks, this task would have to wait the termination of the first one.
  */
-class RefreshTokenTask extends AsyncTask<String, String, JSONObject> {
+class RefreshTokenTask extends Thread {
     private CredentialStore credentialStore;
     private Authenticator authenticator;
 
-    public RefreshTokenTask(Authenticator authenticator, CredentialStore credentialStore) {
+    private String[] url;
+
+    RefreshTokenTask(@NonNull Authenticator authenticator, @NonNull CredentialStore credentialStore,
+                     @NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret, @NonNull String grantType) {
         this.credentialStore = credentialStore;
         this.authenticator = authenticator;
+
+        this.url = new String[] {tokenURL, clientID, clientSecret, grantType};
     }
 
     @Override
-    protected JSONObject doInBackground(String... args) {
-        JSONObject json = null;
+    public void run() {
         try {
-            json = AuthorizationIO.refreshAccessToken(args[0], args[1], args[2], credentialStore.getRefreshToken(), args[3]);
+            JSONObject json = AuthorizationIO.refreshAccessToken(url[0], url[1], url[2], credentialStore.getRefreshToken(), url[3]);
+
+            String accessToken = json.getString("access_token");
+            String expireIn = json.getString("expires_in");
+
+            credentialStore.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
         } catch (RuntimeException e) {
             e.printStackTrace();
             credentialStore.clear();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } finally {
+            authenticator.unlock();
         }
-        return json;
-    }
-
-    @Override
-    protected void onPostExecute(JSONObject json) {
-        if (json != null){
-            try {
-                String accessToken = json.getString("access_token");
-                String expireIn = json.getString("expires_in");
-
-                credentialStore.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        authenticator.unlock();
     }
 }

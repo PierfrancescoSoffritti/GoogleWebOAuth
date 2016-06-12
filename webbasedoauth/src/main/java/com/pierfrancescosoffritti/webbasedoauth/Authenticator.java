@@ -1,8 +1,8 @@
 package com.pierfrancescosoffritti.webbasedoauth;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -32,7 +32,7 @@ import java.util.concurrent.Semaphore;
  */
 public class Authenticator  {
 
-    private Context context;
+    private Activity context;
 
     private String OAuthURL;
     private String scopes;
@@ -48,7 +48,7 @@ public class Authenticator  {
 
     private final Semaphore available = new Semaphore(0, true);
 
-    public Authenticator(@NonNull Context context,
+    public Authenticator(@NonNull Activity context,
                          @NonNull String OAuthURL, @NonNull String[] scopes, @NonNull String redirectURL, @NonNull String responseType, @NonNull String clientID, @NonNull String accessType,
                          @NonNull String tokenURL, @Nullable String clientSecret) {
         this.context = context;
@@ -161,7 +161,7 @@ public class Authenticator  {
      * Start the refresh token process.
      */
     private void refreshToken() {
-        new RefreshTokenTask(this, credentialStore).execute(tokenURL, clientID, clientSecret, "refresh_token");
+        new RefreshTokenTask(this, credentialStore, tokenURL, clientID, clientSecret, "refresh_token").start();
     }
 
     /**
@@ -213,7 +213,8 @@ public class Authenticator  {
 
                     String authorizationCode = Uri.parse(url).getQueryParameter("code");
 
-                    new GetTokensTask(context, Authenticator.this, credentialStore).execute(tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code");
+                    new GetTokensTask(context, Authenticator.this, credentialStore,
+                            tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code").start();
 
                     authDialog.dismiss();
                 } else if(url.contains("error=access_denied"))
