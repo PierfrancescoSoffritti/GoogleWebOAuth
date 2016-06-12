@@ -10,7 +10,7 @@ This library implements the web-based OAuth process in a simple way, in order to
 
 If you don't need to access any secondary account (some Google services can't even use them) you should use the libraries provided by Google.
 
-# Download
+## Download
 Add this to you project-level `build.gradle`:
 ```
 allprojects {
@@ -26,7 +26,7 @@ dependencies {
   compile 'com.github.PierfrancescoSoffritti:WebBasedOAuth:v0.1-beta.1'
 }
 ```
-# Usage
+## Usage
 Use the `Authenticator` class to get the access token from the server.<br/>
 You must provide an implementation of `CredentialPersister`, needed to store the authentication credentials. The library provides an implementation based on `SharedPreferences`.
 You must also provide all the info needed to communicate with the server. See the documentation of the constructor for more info.
