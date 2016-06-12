@@ -3,6 +3,7 @@ package com.pierfrancescosoffritti.webbasedoauth_sample;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -13,6 +14,7 @@ import com.google.api.services.youtube.model.Channel;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.pierfrancescosoffritti.webbasedoauth.Authenticator;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Authenticator authenticator;
 
+    @BindView(R.id.channel_title_text_view) TextView channelTitle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,14 +44,15 @@ public class MainActivity extends AppCompatActivity {
         authenticator = new Authenticator(this, OAUTH_URL, scopes, REDIRECT_URI, RESPONSE_TYPE, CLIENT_ID, ACCESS_TYPE, TOKEN_URL, CLIENT_SECRET);
     }
 
-    @OnClick(R.id.fetch_channel_title)
+    @OnClick(R.id.fetch_channel_title_button)
     public void askForChannelTitle() {
         askForChannelTitle(authenticator);
     }
 
-    @OnClick(R.id.logout)
+    @OnClick(R.id.logout_button)
     public void logout() {
         authenticator.logout();
+        channelTitle.setText(" ");
     }
 
     private void askForChannelTitle(Authenticator authenticator) {
@@ -57,9 +62,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     String accessToken = authenticator.getAccessToken();
-                    Log.d(this.getClass().getSimpleName(), "access token: " +accessToken);
-                    if(accessToken == null)
+                    if(accessToken == null) {
+                        channelTitle.post(() -> channelTitle.setText(""));
                         return;
+                    }
 
                     HttpHeaders headers = new HttpHeaders();
                     headers.setAuthorization("Bearer " + accessToken);
@@ -78,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
                     Channel channel = channels.getItems().get(0);
 
                     String title = channel.getSnippet().getTitle();
-
-                    Log.d(MainActivity.class.getSimpleName(), "channel title: " + title);
+                    Log.d(MainActivity.class.getSimpleName(), "Channel title: " +title);
+                    channelTitle.post(() -> channelTitle.setText(title));
 
                 } catch (Exception e) {
                     authenticator.handleException(e);

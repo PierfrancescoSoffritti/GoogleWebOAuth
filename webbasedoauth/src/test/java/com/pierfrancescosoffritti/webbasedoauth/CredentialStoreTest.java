@@ -106,6 +106,5 @@ public class CredentialStoreTest {
         assertEquals(credentialStore.getExpiresIn(), -1);
         assertNull(credentialStore.getAccessToken());
         assertNull(credentialStore.getRefreshToken());
-        assertNull(credentialStore.getTokenAcquisitionTime());
     }
 }

@@ -154,7 +154,7 @@ class CredentialStore {
         this.accessToken = null;
         this.refreshToken = null;
         this.expiresIn = -1;
-        this.tokenAcquisitionTime = null;
+        this.tokenAcquisitionTime = new Date(0);
 
         this.authStatus = NOT_AUTHENTICATED;
 
