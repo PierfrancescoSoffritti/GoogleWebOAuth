@@ -25,7 +25,7 @@ allprojects {
 Add this to your module-level `build.gradle`:
 ```
 dependencies {
-  compile 'com.github.PierfrancescoSoffritti:WebBasedOAuth:v0.1-beta.1'
+  compile 'com.github.PierfrancescoSoffritti:WebBasedOAuth:v0.1'
 }
 ```
 ## Usage
