@@ -37,8 +37,8 @@ Authenticator authenticator = new Authenticator(activity, new SharedPreferencesC
   OAUTH_URL, scopes, REDIRECT_URI, RESPONSE_TYPE, CLIENT_ID, ACCESS_TYPE, TOKEN_URL, CLIENT_SECRET);
 ```
 Use the method `getAccessToken()` to get an access token.<br/>
-If no access token has been previously requested, this method automatically asks the user for permissions and then gets an access token from the server.
-If the access token has expired, this method automatically asks for a new one.
+If no access token has been previously requested, this method automatically asks the user for permissions and then gets an access token from the server.<br/>
+If the access token has expired, this method automatically asks for a new one.<br/>
 See the documentation of the method for more info.
 
 Once obtained, you can use the access token to make authorized API calls.
@@ -53,5 +53,19 @@ headers.setAuthorization("Bearer " + accessToken);
 Plus plus = new Plus.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), request -> request.setHeaders(headers))
   .setApplicationName("AppName")
   .build();
+  
+try {
+  Plus.People.Get request = plus.people().get("me");
+  request.setFields("displayName");
+
+  request.setKey("yourAPIKey");
+
+  Person person = request.execute();
+  String name = person.getDisplayName();
+} catch (Exception e) {
+  authenticator.handleException(e);
+}
 ```
+remember to always call `authenticator.handleException(e);` when you make an API call using this access token. This is necessary in order to handle the case in which the user revokes the authorization, but the access token hasn't expired yet.
+
 You can see the sample app for a working implementation with the Google+ API and the YouTube Data API.
