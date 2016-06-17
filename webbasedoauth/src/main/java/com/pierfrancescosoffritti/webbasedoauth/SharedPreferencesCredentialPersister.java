@@ -30,7 +30,7 @@ public class SharedPreferencesCredentialPersister implements CredentialPersister
                 .putInt(EXPIRES_IN_TOKEN_KEY, credentialStore.getExpiresIn())
                 .putString(TOKEN_ACQUIRE_TIME_KEY, credentialStore.getTokenAcquisitionTime().getTime()+"")
                 .putInt(AUTH_STATUS_KEY, credentialStore.getAuthStatus())
-                .apply();
+                .commit();
     }
 
     @Override

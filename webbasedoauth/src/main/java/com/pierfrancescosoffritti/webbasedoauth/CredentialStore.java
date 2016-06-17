@@ -85,22 +85,17 @@ public class CredentialStore {
      * Other than returning the auth status, this method is responsible for changing the status to expired if expiresIn - 600 seconds are passed
      * @return the status of the authentication. A value from {@link AuthStatus}
      */
-    @AuthStatus int getAuthStatus() {
+    synchronized @AuthStatus int getAuthStatus() {
         if(authStatus == NOT_AUTHENTICATED)
             return authStatus;
 
         // the access token is refreshed offset seconds before expiring
-        long currentTime = new Date().getTime() / 1000;
-        long tokenAcquiredTime = tokenAcquisitionTime.getTime() / 1000;
-        int offset = 600; // 10 minutes
+        long currentTimeMillisec = new Date().getTime() / 1000;
+        long tokenAcquisitionTimeMillisec = this.tokenAcquisitionTime.getTime() / 1000;
+        int offsetMillisec = 600; // 10 minutes
 
-        if(currentTime - tokenAcquiredTime >= expiresIn - offset) {
+        if(currentTimeMillisec - tokenAcquisitionTimeMillisec >= expiresIn - offsetMillisec)
             authStatus = TOKEN_EXPIRED;
-
-            accessToken = null;
-            expiresIn = -1;
-            tokenAcquisitionTime = null;
-        }
 
         return authStatus;
     }
@@ -108,7 +103,7 @@ public class CredentialStore {
     /**
      * Use this method to store new credentials.
      */
-    void authenticate(@NonNull String accessToken, @NonNull String refreshToken, int expiresIn, @NonNull Date tokenAcquisitionTime) {
+    synchronized void authenticate(@NonNull String accessToken, @NonNull String refreshToken, int expiresIn, @NonNull Date tokenAcquisitionTime) {
         if(accessToken.length() == 0 || refreshToken.length() == 0)
             throw new IllegalArgumentException("accessToken.isEmpty() || refreshToken.isEmpty()");
 
@@ -126,14 +121,14 @@ public class CredentialStore {
     /**
      * Use this method to store new credentials.
      */
-    void authenticate(String accessToken, String refreshToken, int expiresIn) {
+    synchronized void authenticate(String accessToken, String refreshToken, int expiresIn) {
         authenticate(accessToken, refreshToken, expiresIn, new Date());
     }
 
     /**
      * Use this method to set a new access token.
      */
-    void setNewAccessToken(@NonNull String accessToken, int expiresIn) {
+    synchronized void setNewAccessToken(@NonNull String accessToken, int expiresIn) {
         if(accessToken.length() == 0)
             throw new IllegalArgumentException("accessToken.isEmpty()");
 
@@ -150,7 +145,7 @@ public class CredentialStore {
     /**
      * Use this method to delete all the stored credentials.
      */
-    void clear() {
+    synchronized void clear() {
         this.accessToken = null;
         this.refreshToken = null;
         this.expiresIn = -1;
