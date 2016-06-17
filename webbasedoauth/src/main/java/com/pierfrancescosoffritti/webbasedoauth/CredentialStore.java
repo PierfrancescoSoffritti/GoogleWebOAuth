@@ -109,7 +109,7 @@ public class CredentialStore {
      * Use this method to store new credentials.
      */
     void authenticate(@NonNull String accessToken, @NonNull String refreshToken, int expiresIn, @NonNull Date tokenAcquisitionTime) {
-        if(accessToken.isEmpty() || refreshToken.isEmpty())
+        if(accessToken.length() == 0 || refreshToken.length() == 0)
             throw new IllegalArgumentException("accessToken.isEmpty() || refreshToken.isEmpty()");
 
         this.accessToken = accessToken;
@@ -134,7 +134,7 @@ public class CredentialStore {
      * Use this method to set a new access token.
      */
     void setNewAccessToken(@NonNull String accessToken, int expiresIn) {
-        if(accessToken.isEmpty())
+        if(accessToken.length() == 0)
             throw new IllegalArgumentException("accessToken.isEmpty()");
 
         this.accessToken = accessToken;

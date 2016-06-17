@@ -125,7 +125,6 @@ public class Authenticator  {
         @CredentialStore.AuthStatus int status = credentialStore.getAuthStatus();
         switch (status) {
             case CredentialStore.NOT_AUTHENTICATED:
-                Log.d(Authenticator.class.getSimpleName(), "not auth");
                 authenticate();
                 available.acquire();
                 break;
@@ -149,7 +148,7 @@ public class Authenticator  {
         credentialStore.clear();
     }
 
-    /* TODO must find a better solution to this problem. The only way to find out if the user has revoked access to the app (while the access token is valid) is by making an http request. But I can't make an http request every time getAccessToken is called.
+    // TODO must find a better solution to this problem. The only way to find out if the user has revoked access to the app (while the access token is valid) is by making an http request. But I can't make an http request every time getAccessToken is called.
     /**
      * Call this method for every API call you make using the access token.
      * <br/>

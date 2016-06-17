@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 /**
  * A Thread that uses the refresh token to get a valid access token
  * <br/><br/>
@@ -37,10 +39,7 @@ class RefreshTokenTask extends Thread {
             String expireIn = json.getString("expires_in");
 
             credentialStore.setNewAccessToken(accessToken, Integer.parseInt(expireIn));
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            credentialStore.clear();
-        } catch (JSONException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         } finally {
             authenticator.unlock();

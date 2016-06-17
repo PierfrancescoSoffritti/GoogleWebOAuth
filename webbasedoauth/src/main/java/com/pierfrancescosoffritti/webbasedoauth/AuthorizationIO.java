@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,13 +39,12 @@ class AuthorizationIO {
             List<Pair<String, String>> params = new ArrayList<>();
             params.add(new Pair<>("code", authorizationCode));
             params.add(new Pair<>("client_id", clientID));
-            if(clientSecret != null && !clientSecret.isEmpty())
+            if(clientSecret != null && clientSecret.length() != 0)
                 params.add(new Pair<>("client_secret", clientSecret));
             params.add(new Pair<>("redirect_uri", redirectURI));
             params.add(new Pair<>("grant_type", grantType));
 
             return httpPost(conn, params);
-
         } finally {
             if (conn != null)
                 conn.disconnect();
@@ -57,7 +55,7 @@ class AuthorizationIO {
      * Ask the server for a new access token, using a refresh token
      */
     static JSONObject refreshAccessToken(@NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret,
-                                                @NonNull String refreshToken, @NonNull String grantType) throws RuntimeException {
+                                                @NonNull String refreshToken, @NonNull String grantType) throws IOException, JSONException {
 
         HttpURLConnection conn = null;
         try {
@@ -65,20 +63,12 @@ class AuthorizationIO {
 
             List<Pair<String, String>> params = new ArrayList<>();
             params.add(new Pair<>("client_id", clientID));
-            if (clientSecret != null && !clientSecret.isEmpty())
+            if (clientSecret != null && clientSecret.length() != 0)
                 params.add(new Pair<>("client_secret", clientSecret));
             params.add(new Pair<>("refresh_token", refreshToken));
             params.add(new Pair<>("grant_type", grantType));
 
-            try {
-                return httpPost(conn, params);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Can't refresh token, probably the user has revoked the authorization");
-            }
-
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            return httpPost(conn, params);
         } finally {
             if (conn != null)
                 conn.disconnect();
