@@ -12,7 +12,7 @@ import org.json.JSONObject;
  * This functionality isn't implemented with an AsyncTask because this task is called from {@link Authenticator#getAccessToken()}, that blocks the calling thread.
  * <br/>
  * If both this class and the thread calling {@link Authenticator#getAccessToken()} where to be AsyncTasks, the calling AsyncTask would be blocked, waiting for this task to terminate,
- * but due to the sequentiality of AsyncTasks, this task would have to wait the termination of the first one.
+ * but due to the sequential execution of multiple AsyncTasks, this task would have to wait the termination of the first one.
  */
 class RefreshTokenTask extends Thread {
     private CredentialStore credentialStore;
