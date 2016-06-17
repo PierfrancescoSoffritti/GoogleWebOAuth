@@ -2,6 +2,8 @@
 
 [![](https://jitpack.io/v/PierfrancescoSoffritti/WebBasedOAuth.svg)](https://jitpack.io/#PierfrancescoSoffritti/WebBasedOAuth)
 
+<b>This library is currently under development.</b>
+
 Google offers some native ways to implement OAuth authentication in Android apps, but all of them suffer of the same problem: they don't allow access to secondary account (or linked account) and force the user to log into his main account.
 This is not a problem in most cases, but in other cases can be a huge problem.
 For example: YouTube allows an account to have a main channel and multiple secondary channels. Some users may use regularly the secondary channels, so if you're building an app that lets them authenticate in their YouTube channel, you must provide the option to log into both the main channel and the secondary channels. Otherwise they won't use your app.
