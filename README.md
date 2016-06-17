@@ -5,7 +5,7 @@
 <b>This library is currently under development.</b>
 
 Google offers some native ways to implement OAuth authentication in Android apps, but all of them suffer of the same problem: they don't allow access to secondary account (or linked account) and force the user to log into his main account.
-This is not a problem in most cases, but in other cases can be a huge problem.
+This is not a problem in most cases, but for some apps can be a huge limitation.
 For example: YouTube allows an account to have a main channel and multiple secondary channels. Some users may use regularly the secondary channels, so if you're building an app that lets them authenticate in their YouTube channel, you must provide the option to log into both the main channel and the secondary channels. Otherwise they won't use your app.
 
 Apparently the only way to have this basic functionality is to use the web-based OAuth process.
@@ -70,6 +70,6 @@ try {
   authenticator.handleException(e);
 }
 ```
-remember to always call `authenticator.handleException(e);` when you make an API call using this access token. This is necessary in order to handle the case in which the user revokes the authorization, but the access token hasn't expired yet.
+remember to always call `authenticator.handleException(e);` when you make an API call using this access token. This is necessary in order to handle the case in which the user revokes the authorization.
 
 You can see the sample app for a working implementation with the Google+ API and the YouTube Data API.
