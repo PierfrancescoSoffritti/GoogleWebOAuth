@@ -91,7 +91,5 @@ class GetTokensTask extends Thread {
         } finally {
             authenticator.unlock();
         }
-
-        authenticator.unlock();
     }
 }
