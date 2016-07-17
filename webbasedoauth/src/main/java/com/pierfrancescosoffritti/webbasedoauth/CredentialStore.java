@@ -12,9 +12,9 @@ import java.util.Date;
  * This class uses an {@link CredentialPersister} to persist the user data.
  */
 public class CredentialStore {
-    final static int NOT_AUTHENTICATED = 0;
-    final static int TOKEN_EXPIRED = 1;
-    final static int AUTHENTICATED = 2;
+    public final static int NOT_AUTHENTICATED = 0;
+    public final static int TOKEN_EXPIRED = 1;
+    public final static int AUTHENTICATED = 2;
 
     @IntDef({NOT_AUTHENTICATED, TOKEN_EXPIRED, AUTHENTICATED})
     @Retention(RetentionPolicy.SOURCE)

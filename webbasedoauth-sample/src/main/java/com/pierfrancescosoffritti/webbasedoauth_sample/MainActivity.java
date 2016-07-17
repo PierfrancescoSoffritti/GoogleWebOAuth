@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         new Thread() {
             public void run() {
                 try {
-
                     String accessToken = authenticator.getAccessToken();
                     if(accessToken == null) {
                         gPlusPageName.post(() -> gPlusPageName.setText("null"));

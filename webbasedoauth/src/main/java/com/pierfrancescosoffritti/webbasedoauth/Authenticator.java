@@ -140,6 +140,14 @@ public class Authenticator  {
     }
 
     /**
+     * Call this method to know if the user is authenticated.
+     * @return a value from {@link com.pierfrancescosoffritti.webbasedoauth.CredentialStore.AuthStatus}
+     */
+    public @CredentialStore.AuthStatus int getAuthStatus() {
+        return credentialStore.getAuthStatus();
+    }
+
+    /**
      * Delete the current {@link CredentialStore}.
      * <br/>
      * The user info is removed both from memory and from the persistent location.
