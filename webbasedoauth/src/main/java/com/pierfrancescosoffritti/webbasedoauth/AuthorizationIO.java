@@ -31,7 +31,6 @@ class AuthorizationIO {
      */
     static JSONObject exchangeAuthorizationCode(@NonNull String tokenURL, @NonNull String authorizationCode, @NonNull String clientID,
                                                        @Nullable String clientSecret, @NonNull String redirectURI, @NonNull String grantType) throws IOException, JSONException {
-
         HttpURLConnection conn = null;
         try {
             conn = initConnection(new URL(tokenURL));
@@ -56,7 +55,6 @@ class AuthorizationIO {
      */
     static JSONObject refreshAccessToken(@NonNull String tokenURL, @NonNull String clientID, @Nullable String clientSecret,
                                                 @NonNull String refreshToken, @NonNull String grantType) throws IOException, JSONException {
-
         HttpURLConnection conn = null;
         try {
             conn = initConnection(new URL(tokenURL));

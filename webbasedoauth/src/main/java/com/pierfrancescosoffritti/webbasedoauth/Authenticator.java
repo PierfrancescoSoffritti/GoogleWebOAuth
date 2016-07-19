@@ -227,6 +227,11 @@ public class Authenticator  {
         );
 
         webView.setWebViewClient(new WebViewClient() {
+
+            // hack used to solve a problem with pre kitkat WebView.
+            // onPageFinished is called 2 times for the same url (on pre kitkat). That behaviour leads to a duplicated POST request to the server.
+            private boolean called = false;
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon){
             }
@@ -234,16 +239,25 @@ public class Authenticator  {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (url.contains("?code=")) {
+                    // mighty hack :| (see variable declaration)
+                    if(called)
+                        return;
+                    else
+                        called = true;
 
                     // Now the blocked thread must be unlocked the GetTokensTask
                     authDialog.setOnDismissListener(null);
 
                     String authorizationCode = Uri.parse(url).getQueryParameter("code");
 
-                    new GetTokensTask(context, Authenticator.this, credentialStore,
-                            tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code").start();
-
-                    authDialog.dismiss();
+                    try {
+                        new GetTokensTask(context, Authenticator.this, credentialStore,
+                                tokenURL, authorizationCode, clientID, clientSecret, redirectURL, "authorization_code").start();
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } finally {
+                        authDialog.dismiss();
+                    }
                 } else if(url.contains("error=access_denied"))
                     authDialog.dismiss();
             }

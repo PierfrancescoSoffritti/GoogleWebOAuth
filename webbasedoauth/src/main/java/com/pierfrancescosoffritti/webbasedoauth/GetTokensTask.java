@@ -64,15 +64,6 @@ class GetTokensTask extends Thread {
         try {
             JSONObject json = AuthorizationIO.exchangeAuthorizationCode(url[0], url[1], url[2], url[3], url[4], url[5]);
 
-            // dismiss progress dialog
-            if(progressDialog != null)
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressDialog.dismiss();
-                    }
-                });
-
             if (json != null){
                 try {
 
@@ -87,8 +78,16 @@ class GetTokensTask extends Thread {
                 }
             }
         } catch (IOException | JSONException e) {
-            e.printStackTrace();
+            throw new RuntimeException("can't login", e);
         } finally {
+            if(progressDialog != null)
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                    }
+                });
+
             authenticator.unlock();
         }
     }
