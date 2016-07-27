@@ -15,3 +15,17 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# retrolambda
+-dontwarn java.lang.invoke.*
+
+-dontwarn com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+-dontwarn com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential$RequestHandler
+-dontwarn com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAuthIOException
+-dontwarn com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException
+-dontwarn com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+-dontwarn com.google.common.cache.Striped64
+-dontwarn com.google.common.cache.Striped64$1
+-dontwarn com.google.common.cache.Striped64$Cell
+-dontwarn com.google.common.primitives.UnsignedBytes$LexicographicalComparatorHolder$UnsafeComparator
+-dontwarn com.google.common.primitives.UnsignedBytes$LexicographicalComparatorHolder$UnsafeComparator$1
