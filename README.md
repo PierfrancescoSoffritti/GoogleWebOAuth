@@ -29,7 +29,7 @@ allprojects {
 Add this to your module-level `build.gradle`:
 ```
 dependencies {
-  compile 'com.github.PierfrancescoSoffritti:WebBasedOAuth:0.5'
+  compile 'com.github.PierfrancescoSoffritti:WebBasedOAuth:0.6'
 }
 ```
 ## Usage
