@@ -3,7 +3,6 @@ package com.pierfrancescosoffritti.webbasedoauth;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -52,8 +51,6 @@ public class Authenticator  {
 
     private final Semaphore available = new Semaphore(0, true);
 
-    private final ProgressDialog progressDialog;
-
     /**
      * @param context base activity.
      * @param persister responsible for storing the auth credentials.
@@ -82,11 +79,6 @@ public class Authenticator  {
         this.clientSecret = clientSecret;
 
         this.credentialStore = new CredentialStore(persister);
-
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(context.getString(R.string.loading));
-        progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(true);
     }
 
     private String buildScopesString(String[] scopes) {
@@ -204,8 +196,6 @@ public class Authenticator  {
      */
     @SuppressLint("SetJavaScriptEnabled")
     private void showDialog(final CredentialStore credentialStore) {
-        progressDialog.show();
-
         final Dialog authDialog = new Dialog(context);
         authDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -244,7 +234,6 @@ public class Authenticator  {
 
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon){
-                progressDialog.dismiss();
             }
 
             @Override
