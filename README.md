@@ -1,6 +1,7 @@
 ## WebBasedOAuth
 
 [![](https://jitpack.io/v/PierfrancescoSoffritti/WebBasedOAuth.svg)](https://jitpack.io/#PierfrancescoSoffritti/WebBasedOAuth)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-GoogleWebOAuth-green.svg?style=true)](https://android-arsenal.com/details/1/3993)
 
 Google offers some native ways to implement OAuth authentication in Android apps, but all of them suffer of the same problem: they don't allow access to secondary account (or linked account) and force the user to log into his main account.
 This is not a problem in most cases, but for some apps can be a huge limitation.
