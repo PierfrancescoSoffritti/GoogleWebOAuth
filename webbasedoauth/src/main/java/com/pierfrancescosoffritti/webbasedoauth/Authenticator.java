@@ -17,6 +17,8 @@ import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -35,21 +37,23 @@ import java.util.concurrent.Semaphore;
  */
 public class Authenticator  {
 
-    private Activity context;
+    @NonNull private final Activity context;
 
-    private String OAuthURL;
-    private String scopes;
-    private String redirectURL;
-    private String responseType;
-    private String clientID;
-    private String accessType;
+    @NonNull private final String OAuthURL;
+    @NonNull private final String scopes;
+    @NonNull private final String redirectURL;
+    @NonNull private final String responseType;
+    @NonNull private final String clientID;
+    @NonNull private final String accessType;
 
-    private String tokenURL;
-    private String clientSecret;
+    @NonNull private final String tokenURL;
+    @Nullable private final String clientSecret;
 
-    private CredentialStore credentialStore;
+    @NonNull private final CredentialStore credentialStore;
 
-    private final Semaphore available = new Semaphore(0, true);
+    @NonNull private final Set<OnLogoutListener> logoutListeners;
+
+    @NonNull private final Semaphore available = new Semaphore(0, true);
 
     /**
      * @param context base activity.
@@ -79,6 +83,8 @@ public class Authenticator  {
         this.clientSecret = clientSecret;
 
         this.credentialStore = new CredentialStore(persister);
+
+        this.logoutListeners = new HashSet<>();
     }
 
     private String buildScopesString(String[] scopes) {
@@ -117,8 +123,8 @@ public class Authenticator  {
      * @throws RuntimeException if called from the main thread.
      * @throws InterruptedException see {@link Semaphore#acquire()}
      */
-    public synchronized @Nullable
-    String getAccessToken() throws InterruptedException {
+    @Nullable
+    public synchronized String getAccessToken() throws InterruptedException {
         if(Looper.myLooper() == Looper.getMainLooper())
             throw new RuntimeException("don't call getAccessToken() from the main thread.");
 
@@ -143,7 +149,8 @@ public class Authenticator  {
      * Call this method to know if the user is authenticated.
      * @return a value from {@link com.pierfrancescosoffritti.webbasedoauth.CredentialStore.AuthStatus}
      */
-    public @CredentialStore.AuthStatus int getAuthStatus() {
+    @CredentialStore.AuthStatus
+    public int getAuthStatus() {
         return credentialStore.getAuthStatus();
     }
 
@@ -154,6 +161,7 @@ public class Authenticator  {
      */
     public void logout() {
         credentialStore.clear();
+        notifyListeners();
     }
 
     // TODO must find a better solution to this problem. The only way to find out if the user has revoked access to the app (while the access token is valid) is by making an http request. But I can't make an http request every time getAccessToken is called.
@@ -167,7 +175,7 @@ public class Authenticator  {
     public void handleException(Exception e)  {
         if(e.getMessage().contains("401")) {
             Log.e(Authenticator.class.getSimpleName(), "401 Unauthorized, probably the user has revoked the authorization");
-            credentialStore.clear();
+            logout();
         }
     }
 
@@ -273,5 +281,25 @@ public class Authenticator  {
     protected void unlock() {
         if(available.availablePermits() <= 0)
             available.release();
+    }
+
+    private void notifyListeners() {
+        for(OnLogoutListener listener : logoutListeners)
+            listener.onLogout();
+    }
+
+    public void addOnLogoutListener(@NonNull OnLogoutListener onLogoutListener) {
+        logoutListeners.add(onLogoutListener);
+    }
+
+    public void removeOnLogoutListener(@NonNull OnLogoutListener onLogoutListener) {
+        logoutListeners.remove(onLogoutListener);
+    }
+
+    /**
+     * Implement this interface in order to be notified of logout events
+     */
+    public interface OnLogoutListener {
+        void onLogout();
     }
 }
