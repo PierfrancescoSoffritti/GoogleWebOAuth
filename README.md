@@ -15,7 +15,7 @@ If you don't need to access any secondary account (some Google services can't ev
 
 Download the sample app [here](https://github.com/PierfrancescoSoffritti/GoogleWebOAuth/blob/master/webbasedoauth-sample/webbasedoauth-sample-release.apk?raw=true)
 
-Apps using this library: [Shuffly](https://plus.google.com/u/0/communities/108043751914798315413)
+Apps using this library: [Shuffly](https://play.google.com/store/apps/details?id=com.pierfrancescosoffritti.shuffly)
 
 <img  src="https://github.com/PierfrancescoSoffritti/WebBasedOAuth/blob/master/screenshots/sample.jpg" />
 
