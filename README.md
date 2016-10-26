@@ -9,7 +9,7 @@ For example: YouTube allows an account to have a main channel and multiple secon
 
 Apparently the only way to have this basic functionality is to use the web-based OAuth process.
 
-This library implements the web-based OAuth process in a simple way, in order to solve the problem illustared before.
+This library implements web-based OAuth in a simple way, in order to solve the problem illustared above.
 
 If you don't need to access any secondary account (some Google services can't even use them) you should use the libraries provided by Google.
 
