@@ -1,4 +1,4 @@
-## This library is deprecated. Google no longer supports Web authentication from WebViews.
+## This library is deprecated. Google no longer supports web authentication from WebViews.
 
 ## WebBasedOAuth
 
